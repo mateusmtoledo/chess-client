@@ -1,18 +1,7 @@
 <script setup lang="ts">
 import { Puzzle, Settings, Swords, User } from 'lucide-vue-next';
 import NavLink from './components/NavLink.vue';
-import ChessBoard from './components/ChessBoard.vue';
-import { Chess, Square } from 'chess.js';
-import { ref } from 'vue';
-
-const pgn = ref(new Chess().pgn())
-
-function onMove(from: Square, to: Square) {
-  const c = new Chess()
-  c.loadPgn(pgn.value)
-  c.move({ from, to })
-  pgn.value = c.pgn()
-}
+import GamePage from './pages/GamePage.vue';
 </script>
 
 <template>
@@ -29,7 +18,7 @@ function onMove(from: Square, to: Square) {
       </nav>
     </div>
     <main class="p-8">
-      <ChessBoard :pgn="pgn" @move="onMove" />
+      <GamePage />
     </main>
   </div>
 </template>
