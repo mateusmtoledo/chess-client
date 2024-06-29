@@ -5,7 +5,7 @@ import GamePage from './pages/GamePage.vue';
 </script>
 
 <template>
-  <div class="grid grid-cols-[240px_1fr] h-screen">
+  <div class="grid grid-cols-[240px_1fr] h-screen bg-muted/40">
     <div class="bg-background border-r border-border flex flex-col gap-4 p-4">
       <h1 class="text-3xl font-extrabold">
         MChess
