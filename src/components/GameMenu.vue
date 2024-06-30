@@ -9,9 +9,7 @@ import Tabs from './ui/tabs/Tabs.vue'
 import TabsContent from './ui/tabs/TabsContent.vue'
 import TabsList from './ui/tabs/TabsList.vue'
 import TabsTrigger from './ui/tabs/TabsTrigger.vue'
-import { computed } from 'vue'
-import { Chess } from 'chess.js'
-import ScrollArea from './ui/scroll-area/ScrollArea.vue'
+import MoveList from './MoveList.vue'
 
 type GameMenuProps = {
   pgn: string
@@ -19,12 +17,6 @@ type GameMenuProps = {
 }
 
 const props = defineProps<GameMenuProps>()
-
-const moveHistory = computed(() => {
-  const c = new Chess()
-  c.loadPgn(props.pgn)
-  return c.history()
-})
 </script>
 
 <template>
@@ -49,17 +41,7 @@ const moveHistory = computed(() => {
         </TabsContent>
       </CardContent>
       <CardFooter>
-        <ScrollArea class="h-48 w-full">
-          <ol>
-            <li v-for="n in Math.floor((moveHistory.length + 1) / 2)">
-              <p class="flex w-full">
-                <span class="w-12 text-muted-foreground">{{ n }}.</span>
-                <span class="w-24">{{ moveHistory[(n - 1) * 2] }}</span>
-                <span v-if="moveHistory[(n - 1) * 2 + 1]">{{ moveHistory[(n - 1) * 2 + 1] }}</span>
-              </p>
-            </li>
-          </ol>
-        </ScrollArea>
+        <MoveList :pgn="props.pgn" />
       </CardFooter>
     </Card>
   </Tabs>
