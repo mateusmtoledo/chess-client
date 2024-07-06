@@ -7,7 +7,9 @@ import NavLink from './NavLink.vue';
   <div class="bg-background border-r border-border flex flex-col justify-between p-4">
     <div>
       <h1 class="text-3xl font-extrabold m-4">
-        MChess
+        <RouterLink to="/">
+          MChess
+        </RouterLink>
       </h1>
       <nav className="flex flex-col gap-2">
         <NavLink text="Profile" :icon="User" />
