@@ -21,7 +21,6 @@ const router = useRouter()
 
 const formSchema = toTypedSchema(z.object({
   name: z.string().min(3).max(50),
-  email: z.string().email(),
   password: z.string().min(6).max(20),
 }))
 
@@ -31,7 +30,7 @@ const { handleSubmit } = useForm({
 
 const onSubmit = handleSubmit(async (values) => {
   await api.post('/auth/signup', values)
-  await signIn({ email: values.email, password: values.password })
+  await signIn({ name: values.name, password: values.password })
   router.push('/')
 })
 </script>
@@ -51,16 +50,7 @@ const onSubmit = handleSubmit(async (values) => {
         <form @submit="onSubmit" class="flex flex-col gap-4">
           <FormField v-slot="{ componentField }" name="name">
             <FormItem>
-              <FormLabel>Name</FormLabel>
-              <FormControl>
-                <Input type="text" v-bind="componentField" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          </FormField>
-          <FormField v-slot="{ componentField }" name="email">
-            <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>Username</FormLabel>
               <FormControl>
                 <Input type="text" v-bind="componentField" />
               </FormControl>

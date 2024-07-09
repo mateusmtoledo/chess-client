@@ -24,7 +24,7 @@ function getUserInitials() {
   const splitName = name.split(' ')
   initials += splitName[0].charAt(0)
   if (splitName[1]) initials += splitName[1].charAt(0)
-  return initials
+  return initials.toUpperCase()
 }
 </script>
 

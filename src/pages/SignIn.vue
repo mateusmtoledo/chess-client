@@ -21,7 +21,7 @@ import { z } from 'zod';
 const router = useRouter()
 
 const formSchema = toTypedSchema(z.object({
-  email: z.string().email(),
+  name: z.string().min(3).max(20),
   password: z.string().min(6).max(20),
 }))
 
@@ -56,9 +56,9 @@ const onSubmit = handleSubmit(async (credentials) => {
       </CardHeader>
       <CardContent>
         <form @submit="onSubmit" class="flex flex-col gap-4">
-          <FormField v-slot="{ componentField }" name="email">
+          <FormField v-slot="{ componentField }" name="name">
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>Username</FormLabel>
               <FormControl>
                 <Input type="text" v-bind="componentField" />
               </FormControl>

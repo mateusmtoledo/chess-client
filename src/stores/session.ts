@@ -3,11 +3,10 @@ import { reactive, readonly } from "vue";
 
 export type User = {
   name: string;
-  email: string;
 }
 
 export type UserCredentials = {
-  email: string
+  name: string
   password: string
 }
 
@@ -36,7 +35,8 @@ export async function fetchSession() {
       session.user = response.data
     }
   } catch (err) {
-    console.error(err)
+    localStorage.removeItem('accessToken')
+    throw err;
   } finally {
     session.isLoading = false
   }
