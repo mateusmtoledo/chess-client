@@ -25,7 +25,7 @@ const formSchema = toTypedSchema(z.object({
   password: z.string().min(6).max(20),
 }))
 
-const { handleSubmit, setFieldError } = useForm({
+const { handleSubmit, setErrors } = useForm({
   validationSchema: formSchema
 })
 
@@ -35,7 +35,10 @@ const onSubmit = handleSubmit(async (credentials) => {
     router.push('/')
   } catch (err) {
     if (err instanceof AxiosError && err.response?.status === 400) {
-      setFieldError('password', 'Wrong credentials')
+      setErrors({
+        name: ' ',
+        password: 'Wrong credentials',
+      })
     } else {
       console.error(err)
     }

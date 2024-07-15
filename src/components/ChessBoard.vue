@@ -6,6 +6,7 @@ import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
 type ChessBoardProps = {
   pgn: string
   onMove: (from: Square, to: Square) => void
+  playerColor: 'w' | 'b' | null
 }
 
 const props = defineProps<ChessBoardProps>()
@@ -31,6 +32,14 @@ const chess = computed(() => {
 
 const moving = ref<Square | null>(null)
 
+function isMovingOwnPiece() {
+  const m = moving.value
+  if (!m) return false
+  const piece = chess.value.get(m)
+  if (!piece || piece.color !== props.playerColor) return false
+  return true
+}
+
 function getPieceUrl(piece: Piece) {
   if (!piece) return
   const { type, color } = piece
@@ -42,8 +51,16 @@ function getSquareFromEvent(e: MouseEvent) {
   const x = (e.x - boardRect.x) / boardRect.width
   const y = (e.y - boardRect.top) / boardRect.height
   if (x < 0 || x > 1 || y < 0 || y > 1) return null
-  const rank = Math.floor(9 - y * 8)
-  const file = String.fromCharCode('a'.charCodeAt(0) + Math.floor(x * 8))
+  let file: string
+  let rank: number
+  if (props.playerColor === 'b') {
+    file = String.fromCharCode('h'.charCodeAt(0) - Math.floor(x * 8))
+    rank = Math.floor(1 + y * 8)
+  }
+  else {
+    file = String.fromCharCode('a'.charCodeAt(0) + Math.floor(x * 8))
+    rank = Math.floor(9 - y * 8)
+  }
   return (file + rank) as Square
 }
 
@@ -59,7 +76,7 @@ function clearMoving() {
 function onMouseUp(e: MouseEvent) {
   const from = moving.value
   const to = getSquareFromEvent(e)
-  if (!from || !to) return clearMoving()
+  if (!from || !to || !isMovingOwnPiece()) return clearMoving()
   try {
     const c = new Chess()
     c.loadPgn(props.pgn)
@@ -84,7 +101,7 @@ onUnmounted(() => {
 
 const possibleMoves = computed(() => {
   const m = moving.value
-  if (!m) return []
+  if (!m || !isMovingOwnPiece()) return []
   return chess.value.moves({ square: m, verbose: true }).map((m) => m.to)
 })
 
@@ -94,11 +111,15 @@ function getPieceStyle(s: Square) {
 }
 
 let piece: Piece
+
+const SQUARES_INVERTED = [...SQUARES].reverse()
+
+const squares = computed(() => props.playerColor === 'b' ? SQUARES_INVERTED : SQUARES)
 </script>
 
 <template>
   <div class="board" ref="boardRef" draggable="false">
-    <div v-for="s in SQUARES" :class="`square ${chess.squareColor(s)} ${possibleMoves.includes(s) ? 'target' : ''}`"
+    <div v-for="s in squares" :class="`square ${chess.squareColor(s)} ${possibleMoves.includes(s) ? 'target' : ''}`"
       draggable="false" :set="(piece = chess.get(s))" :data-square="s" @mouseup="onMouseUp">
       <img :src="getPieceUrl(piece)" v-if="piece" :class="`piece ${moving === s ? 'dragging' : ''}`" draggable="false"
         @mousedown="onMouseDown" :data-square="s" :style="getPieceStyle(s)" />

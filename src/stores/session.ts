@@ -1,19 +1,6 @@
 import api from "@/adapters/api";
+import { Session, UserCredentials } from "@/lib/types/SessionTypes";
 import { reactive, readonly } from "vue";
-
-export type User = {
-  name: string;
-}
-
-export type UserCredentials = {
-  name: string
-  password: string
-}
-
-type Session = {
-  user: User | null
-  isLoading: boolean
-}
 
 const session = reactive<Session>({
   user: null,

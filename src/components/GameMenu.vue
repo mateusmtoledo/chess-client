@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Loader2, Search, UsersRound, X } from 'lucide-vue-next'
+import { Loader2, Search, Swords, UsersRound, X } from 'lucide-vue-next'
 import Button from './ui/button/Button.vue'
 import Card from './ui/card/Card.vue'
 import CardContent from './ui/card/CardContent.vue'
@@ -13,6 +13,8 @@ import MoveList from './MoveList.vue'
 import { computed, ref, watch } from 'vue'
 import { useInterval } from '@vueuse/core'
 import { cn } from '@/lib/utils'
+import Badge from './ui/badge/Badge.vue'
+import { Game, GameResult } from '@/lib/types/GameTypes'
 
 type GameMenuProps = {
   pgn: string
@@ -20,6 +22,8 @@ type GameMenuProps = {
   isInQueue: boolean
   joinQueue: () => void
   leaveQueue: () => void
+  allGames: Game[]
+  subscribeToGame: (gameId: number) => void
 }
 
 const props = defineProps<GameMenuProps>()
@@ -40,6 +44,13 @@ watch(() => props.isInQueue, (isInQueue, oldValue) => {
   if (isInQueue) resume()
   else pause()
 })
+
+const sortedGames = computed(() => [...props.allGames].sort((a, b) => {
+  if (a.result === b.result) return 0
+  else if (a.result === GameResult.Ongoing) return -1
+  else if (b.result === GameResult.Ongoing) return 1
+  else return 0
+}))
 
 const buttonCommonClasses = cn("w-full", "mb-4", "flex", "gap-2")
 const iconCommonClasses = cn("w-4", "h-4")
@@ -76,6 +87,28 @@ const iconCommonClasses = cn("w-4", "h-4")
           </div>
         </TabsContent>
         <TabsContent value="matches">
+          <ul class="flex flex-col -mt-6 -mx-6">
+            <Button variant="ghost" v-for="game in sortedGames" @click="() => subscribeToGame(game.id)"
+              class="h-max p-0 rounded-none border-b border-border">
+              <div class="w-full flex justify-between items-center px-5 py-4">
+                <div class="flex gap-2 items-center">
+                  <Swords class="w-5 h-5 text-muted-foreground" />
+                  <div class="flex flex-col">
+                    <span :class="game.result === GameResult.WhiteWins ? 'font-semibold' : 'text-muted-foreground'">
+                      {{ game.whitePlayer.name }}
+                    </span>
+                    <span :class="game.result === GameResult.BlackWins ? 'font-semibold' : 'text-muted-foreground'">
+                      {{ game.blackPlayer.name }}
+                    </span>
+                  </div>
+                </div>
+                <div>
+                  <Badge :variant="game.result === GameResult.Ongoing ? 'outline' : 'default'">{{ game.result ===
+                    GameResult.Ongoing ? 'Ongoing' : 'Finished' }}</Badge>
+                </div>
+              </div>
+            </Button>
+          </ul>
         </TabsContent>
       </CardContent>
       <CardFooter>
