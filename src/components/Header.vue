@@ -8,24 +8,13 @@ import DropdownMenuItem from './ui/dropdown-menu/DropdownMenuItem.vue';
 import Button from './ui/button/Button.vue';
 import { UserRound, UserRoundPlus } from 'lucide-vue-next';
 import { RouterLink, useRoute } from 'vue-router';
-import Avatar from './ui/avatar/Avatar.vue';
-import AvatarFallback from './ui/avatar/AvatarFallback.vue';
 import Skeleton from './ui/skeleton/Skeleton.vue';
 import { signOut, useSession } from '@/stores/session';
+import UserAvatar from './UserAvatar.vue';
 
 const session = useSession()
 
 const route = useRoute()
-
-function getUserInitials() {
-  if (!session.user) return
-  const { user: { name } } = session
-  let initials = ''
-  const splitName = name.split(' ')
-  initials += splitName[0].charAt(0)
-  if (splitName[1]) initials += splitName[1].charAt(0)
-  return initials.toUpperCase()
-}
 </script>
 
 <template>
@@ -35,9 +24,7 @@ function getUserInitials() {
     <DropdownMenu v-else-if="session.user != null">
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="icon" class="rounded-full text-muted-foreground hover:text-muted-foreground">
-          <Avatar class="bg-black text-white">
-            <AvatarFallback>{{ getUserInitials() }}</AvatarFallback>
-          </Avatar>
+          <UserAvatar :name="session.user.name" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">

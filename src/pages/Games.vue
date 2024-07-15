@@ -2,6 +2,7 @@
 import { useGameHubConnection } from '@/adapters/gameHubConnection';
 import ChessBoard from '@/components/ChessBoard.vue';
 import GameMenu from '@/components/GameMenu.vue';
+import PlayerInfo from '@/components/PlayerInfo.vue';
 import { Game } from '@/lib/types/GameTypes';
 import { useSession } from '@/stores/session';
 import { Chess, Square } from 'chess.js';
@@ -100,11 +101,38 @@ const playerColor = computed(() => {
   if (gameData.value.blackPlayer.id === user.id) return 'b'
   return null
 })
+
+const isBoardInverted = computed(() => playerColor.value === 'b')
+
+const topName = computed(() => (isBoardInverted.value ? gameData.value?.whitePlayer.name : gameData.value?.blackPlayer.name) || 'Opponent')
+
+const bottomName = computed(() => (isBoardInverted.value ? gameData.value?.blackPlayer.name : gameData.value?.whitePlayer.name) || 'You')
+
+const currentTurn = computed(() => {
+  if (!gameData.value) return null
+  const c = new Chess()
+  c.loadPgn(gameData.value.pgn)
+  return c.turn()
+})
+
+const isTopPlayersTurn = computed(() => {
+  if (currentTurn.value === null) return false
+  return isBoardInverted ? currentTurn.value === 'w' : currentTurn.value === 'b'
+})
+
+const isBottomPlayersTurn = computed(() => {
+  if (currentTurn.value === null) return false
+  return isBoardInverted ? currentTurn.value === 'b' : currentTurn.value === 'w'
+})
 </script>
 
 <template>
   <div class="h-full flex justify-center items-center gap-4">
-    <ChessBoard :pgn="pgn" @move="onMove" :player-color="playerColor" />
+    <div class="flex flex-col gap-2">
+      <PlayerInfo :name="topName" :turn="isTopPlayersTurn" />
+      <ChessBoard :pgn="pgn" @move="onMove" :player-color="playerColor" />
+      <PlayerInfo :name="bottomName" :turn="isBottomPlayersTurn" />
+    </div>
     <GameMenu :pgn="pgn" :playersInQueueCount="playersInQueueCount" :join-queue="joinQueue" :leave-queue="leaveQueue"
       :is-in-queue="isInQueue" :all-games="allGames" :subscribe-to-game="subscribeToGame" />
   </div>
