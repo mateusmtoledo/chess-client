@@ -4,7 +4,7 @@ import NavLink from './NavLink.vue';
 </script>
 
 <template>
-  <div class="bg-background border-r border-border flex flex-col justify-between p-4">
+  <div class="bg-background border-r border-border flex flex-col justify-between p-4 w-[240px]">
     <div>
       <h1 class="text-3xl font-extrabold m-4">
         <RouterLink to="/">

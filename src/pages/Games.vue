@@ -78,9 +78,16 @@ function updateGameList(games: Game[]) {
   allGames.value = games
 }
 
+function subscribeToNewGame(game: Game) {
+  if (isInQueue.value === false) return
+  isInQueue.value = false
+  subscribeToGame(game.id)
+}
+
 onMounted(() => {
   connection.on('playersInQueueCountUpdated', updatePlayersInQueueCount)
   connection.on('gameListUpdated', updateGameList)
+  connection.on('gameCreated', subscribeToNewGame)
   connection.start().then(() => {
     connection.send('getPlayersInQueueCount')
     connection.send('getAllGames')
@@ -89,6 +96,8 @@ onMounted(() => {
 
 onUnmounted(() => {
   connection.off('playersInQueueCountUpdated', updatePlayersInQueueCount)
+  connection.off('gameListUpdated', updateGameList)
+  connection.off('gameCreated', subscribeToNewGame)
   connection.stop()
 })
 
@@ -115,23 +124,23 @@ const currentTurn = computed(() => {
   return c.turn()
 })
 
-const isTopPlayersTurn = computed(() => {
-  if (currentTurn.value === null) return false
-  return isBoardInverted ? currentTurn.value === 'w' : currentTurn.value === 'b'
+const isGameOver = computed(() => {
+  if (!gameData.value) return null
+  const c = new Chess()
+  c.loadPgn(gameData.value.pgn)
+  return c.isGameOver()
 })
 
-const isBottomPlayersTurn = computed(() => {
-  if (currentTurn.value === null) return false
-  return isBoardInverted ? currentTurn.value === 'b' : currentTurn.value === 'w'
-})
+const isTopPlayersTurn = computed(() => isBoardInverted.value ? currentTurn.value === 'w' : currentTurn.value === 'b')
+const isBottomPlayersTurn = computed(() => isBoardInverted.value ? currentTurn.value === 'b' : currentTurn.value === 'w')
 </script>
 
 <template>
   <div class="h-full flex justify-center items-center gap-4">
     <div class="flex flex-col gap-2">
-      <PlayerInfo :name="topName" :turn="isTopPlayersTurn" />
+      <PlayerInfo :name="topName" :turn="!isGameOver && isTopPlayersTurn" />
       <ChessBoard :pgn="pgn" @move="onMove" :player-color="playerColor" />
-      <PlayerInfo :name="bottomName" :turn="isBottomPlayersTurn" />
+      <PlayerInfo :name="bottomName" :turn="!isGameOver && isBottomPlayersTurn" />
     </div>
     <GameMenu :pgn="pgn" :playersInQueueCount="playersInQueueCount" :join-queue="joinQueue" :leave-queue="leaveQueue"
       :is-in-queue="isInQueue" :all-games="allGames" :subscribe-to-game="subscribeToGame" />

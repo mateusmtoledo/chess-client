@@ -10,11 +10,11 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="grid grid-cols-[240px_1fr] h-screen bg-muted/40">
+  <div class="flex h-screen bg-muted/40">
     <NavBar />
-    <div class="flex flex-col">
+    <div class="w-full flex flex-col">
       <Header />
-      <main class="flex-1 p-8">
+      <main class="flex-1 p-8 min-h-0">
         <RouterView />
       </main>
     </div>
