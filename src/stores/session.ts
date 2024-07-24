@@ -11,7 +11,11 @@ export async function signIn(credentials: UserCredentials) {
   const response = await api.post('/auth/signin', credentials)
   const accessToken = response.data.token
   localStorage.setItem('accessToken', accessToken)
-  fetchSession()
+  // TODO This is to make sure everything goes well,
+  // but it could be a better solution to just restart
+  // the signalr connection.
+  location.reload()
+  // fetchSession()
 }
 
 export async function fetchSession() {
@@ -31,8 +35,12 @@ export async function fetchSession() {
 
 export function signOut() {
   localStorage.removeItem('accessToken')
-  session.user = null
-  session.isLoading = false
+  // session.user = null
+  // session.isLoading = false
+  // TODO This is to make sure everything goes well,
+  // but it could be a better solution to just restart
+  // the signalr connection.
+  location.reload()
 }
 
 export function useSession() {
