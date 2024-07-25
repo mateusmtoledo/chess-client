@@ -4,7 +4,7 @@ import ChessBoard from '@/components/ChessBoard.vue';
 import GameMenu from '@/components/GameMenu.vue';
 import PlayerInfo from '@/components/PlayerInfo.vue';
 import { Game } from '@/lib/types/GameTypes';
-import { useSession } from '@/stores/session';
+import { useSession, withRequiredAuthentication } from '@/stores/session';
 import { Chess, Square } from 'chess.js';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 
@@ -58,10 +58,10 @@ function onMove(from: Square, to: Square) {
 const playersInQueueCount = ref(0)
 const isInQueue = ref<boolean>(false)
 
-function joinQueue() {
+const joinQueue = withRequiredAuthentication(() => {
   connection.send('joinQueue')
   isInQueue.value = true
-}
+})
 
 function leaveQueue() {
   connection.send('leaveQueue')
