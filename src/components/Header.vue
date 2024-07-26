@@ -28,7 +28,7 @@ const route = useRoute()
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuLabel>Mateus Toledo</DropdownMenuLabel>
+        <DropdownMenuLabel>{{ session.user.name }}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem @click="signOut">Logout</DropdownMenuItem>
       </DropdownMenuContent>
