@@ -3,7 +3,14 @@ import { useGameHubConnection } from '@/adapters/gameHubConnection';
 import ChessBoard from '@/components/ChessBoard.vue';
 import GameMenu from '@/components/GameMenu.vue';
 import PlayerInfo from '@/components/PlayerInfo.vue';
-import { Game } from '@/lib/types/GameTypes';
+import Card from '@/components/ui/card/Card.vue';
+import CardContent from '@/components/ui/card/CardContent.vue';
+import CardHeader from '@/components/ui/card/CardHeader.vue';
+import CardTitle from '@/components/ui/card/CardTitle.vue';
+import UserAvatar from '@/components/UserAvatar.vue';
+import { Game, GameResult } from '@/lib/types/GameTypes';
+import { User } from '@/lib/types/SessionTypes';
+import { cn } from '@/lib/utils';
 import { useSession, withRequiredAuthentication } from '@/stores/session';
 import { Chess, Square } from 'chess.js';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
@@ -133,13 +140,53 @@ const isGameOver = computed(() => {
 
 const isTopPlayersTurn = computed(() => isBoardInverted.value ? currentTurn.value === 'w' : currentTurn.value === 'b')
 const isBottomPlayersTurn = computed(() => isBoardInverted.value ? currentTurn.value === 'b' : currentTurn.value === 'w')
+
+const gameWinner = computed<User | null>(() => {
+  if (gameData.value?.result === GameResult.BlackWins) return gameData.value.blackPlayer
+  if (gameData.value?.result === GameResult.WhiteWins) return gameData.value.whitePlayer
+  return null
+})
+
+const gameWinnerOutlineClasses = cn('outline', 'outline-4', 'outline-green-500')
 </script>
 
 <template>
   <div class="h-full flex justify-center items-center gap-4">
     <div class="flex flex-col gap-2">
       <PlayerInfo :name="topName" :turn="!isGameOver && isTopPlayersTurn" />
-      <ChessBoard :pgn="pgn" @move="onMove" :player-color="playerColor" />
+      <ChessBoard :pgn="pgn" @move="onMove" :player-color="playerColor">
+        <template #overlay v-if="gameData && gameData.result !== GameResult.Ongoing">
+          <Card class="w-[480px]">
+            <CardHeader>
+              <CardTitle class="text-center mb-4">
+                Match finished
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div class="flex mb-8 justify-center items-center gap-8">
+                <div class="flex flex-col gap-2 items-center">
+                  <div :class="cn('rounded-md', gameData.result === GameResult.WhiteWins && gameWinnerOutlineClasses)">
+                    <UserAvatar :name="gameData.whitePlayer.name" :avatar-props="{ shape: 'square', size: 'base' }" />
+                  </div>
+                  <p class="text-sm text-black/75">{{ gameData.whitePlayer.name }}</p>
+                </div>
+                <span class="text-sm font-bold">
+                  VS
+                </span>
+                <div class="flex flex-col gap-2 items-center">
+                  <div :class="cn('rounded-md', gameData.result === GameResult.BlackWins && gameWinnerOutlineClasses)">
+                    <UserAvatar :name="gameData.blackPlayer.name" :avatar-props="{ shape: 'square', size: 'base' }" />
+                  </div>
+                  <p class="text-sm text-black/75">{{ gameData.blackPlayer.name }}</p>
+                </div>
+              </div>
+              <p class="text-center font-medium">
+                {{ gameData.result === GameResult.Draw ? 'It\'s a draw' : `${gameWinner?.name} won` }}
+              </p>
+            </CardContent>
+          </Card>
+        </template>
+      </ChessBoard>
       <PlayerInfo :name="bottomName" :turn="!isGameOver && isBottomPlayersTurn" />
     </div>
     <GameMenu :pgn="pgn" :playersInQueueCount="playersInQueueCount" :join-queue="joinQueue" :leave-queue="leaveQueue"

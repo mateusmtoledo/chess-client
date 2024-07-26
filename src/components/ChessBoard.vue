@@ -115,14 +115,24 @@ let piece: Piece
 const SQUARES_INVERTED = [...SQUARES].reverse()
 
 const squares = computed(() => props.playerColor === 'b' ? SQUARES_INVERTED : SQUARES)
+
+type ChessBoardSlots = {
+  overlay?: () => any
+}
+
+const slots = defineSlots<ChessBoardSlots>()
 </script>
 
 <template>
-  <div class="board" ref="boardRef" draggable="false">
+  <div class="board relative" ref="boardRef" draggable="false">
     <div v-for="s in squares" :class="`square ${chess.squareColor(s)} ${possibleMoves.includes(s) ? 'target' : ''}`"
       draggable="false" :set="(piece = chess.get(s))" :data-square="s" @mouseup="onMouseUp">
       <img :src="getPieceUrl(piece)" v-if="piece" :class="`piece ${moving === s ? 'dragging' : ''}`" draggable="false"
         @mousedown="onMouseDown" :data-square="s" :style="getPieceStyle(s)" />
+    </div>
+    <div v-if="slots.overlay"
+      class="flex justify-center items-center absolute top-0 left-0 w-full h-full bg-black/25 z-50">
+      <slot name="overlay" />
     </div>
   </div>
 </template>
