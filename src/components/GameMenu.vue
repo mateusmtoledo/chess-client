@@ -16,6 +16,7 @@ import { cn } from '@/lib/utils'
 import Badge from './ui/badge/Badge.vue'
 import { Game, GameResult } from '@/lib/types/GameTypes'
 import ScrollArea from './ui/scroll-area/ScrollArea.vue'
+import { useSession } from '@/stores/session'
 
 type GameMenuProps = {
   pgn: string
@@ -55,6 +56,8 @@ const sortedGames = computed(() => [...props.allGames].sort((a, b) => {
 
 const buttonCommonClasses = cn("w-full", "mb-4", "flex", "gap-2")
 const iconCommonClasses = cn("w-4", "h-4")
+
+const session = useSession()
 </script>
 
 <template>
@@ -77,7 +80,7 @@ const iconCommonClasses = cn("w-4", "h-4")
               <Loader2 v-else :class="cn(iconCommonClasses, 'animate-spin')" />
               {{ isHoveringLeaveQueueButton ? `Leave queue (${timeInQueue})` : `Searching (${timeInQueue})` }}
             </Button>
-            <Button v-else :class="buttonCommonClasses" @click="props.joinQueue">
+            <Button v-else :class="buttonCommonClasses" @click="props.joinQueue" :disabled="session.isLoading">
               <Search :class="iconCommonClasses" />
               Find a match
             </Button>

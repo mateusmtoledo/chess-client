@@ -7,13 +7,6 @@ const session = reactive<Session>({
   isLoading: true,
 })
 
-let callbackQueue: (() => void)[] = []
-
-function executeCallbacks() {
-  callbackQueue.forEach((callback) => callback())
-  callbackQueue = []
-}
-
 export async function signIn(credentials: UserCredentials) {
   const response = await api.post('/auth/signin', credentials)
   const accessToken = response.data.token
@@ -32,7 +25,6 @@ export async function fetchSession() {
       const response = await api.get('/auth/info')
       session.user = response.data
       session.isLoading = false
-      executeCallbacks()
     }
   } catch (err) {
     localStorage.removeItem('accessToken')
@@ -58,7 +50,7 @@ export function signOut() {
 
 export function withRequiredAuthentication(callback: () => void) {
   return () => {
-    if (session.isLoading) callbackQueue.push(callback)
+    if (session.isLoading) return
     else if (session.user === null) location.replace('/sign-in')
     else callback()
   }
